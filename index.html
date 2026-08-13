@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Master's Entrance Exam Countdown</title>
+
+  <style>
+    :root {
+      --bg: #111111;
+      --panel: #151515;
+      --text: #f5f5f5;
+      --muted: #8d8d8d;
+      --line: #2d2d2d;
+      --accent: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      background: transparent;
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont,
+                   "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text);
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+    }
+
+    .countdown-card {
+      width: min(100%, 860px);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 30px 34px 26px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    }
+
+    .title {
+      margin: 0;
+      text-align: center;
+      font-size: clamp(14px, 2.2vw, 20px);
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .rule {
+      height: 1px;
+      background: var(--line);
+      margin: 24px 0;
+    }
+
+    .timer {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+      align-items: end;
+      gap: clamp(6px, 1.2vw, 14px);
+    }
+
+    .unit {
+      min-width: 0;
+      text-align: center;
+    }
+
+    .number {
+      display: block;
+      font-variant-numeric: tabular-nums;
+      font-size: clamp(30px, 7.2vw, 70px);
+      line-height: 0.95;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .label {
+      display: block;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: clamp(9px, 1.4vw, 12px);
+      font-weight: 650;
+      letter-spacing: 0.20em;
+    }
+
+    .colon {
+      align-self: start;
+      margin-top: clamp(0px, 1vw, 8px);
+      color: var(--muted);
+      font-size: clamp(25px, 6vw, 58px);
+      font-weight: 300;
+      line-height: 0.9;
+    }
+
+    .date {
+      text-align: center;
+      font-size: clamp(12px, 2vw, 17px);
+      line-height: 1.4;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .timezone {
+      margin-top: 7px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .finished {
+      text-align: center;
+      font-size: clamp(24px, 5vw, 52px);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 12px 0;
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 6px;
+      }
+
+      .countdown-card {
+        padding: 22px 14px 20px;
+        border-radius: 14px;
+      }
+
+      .timer {
+        gap: 4px;
+      }
+
+      .label {
+        letter-spacing: 0.12em;
+      }
+
+      .rule {
+        margin: 18px 0;
+      }
+    }
+
+    /* Optional light-mode class.
+       Change <body> to <body class="light"> if desired. */
+    body.light {
+      --bg: #ffffff;
+      --panel: #ffffff;
+      --text: #171717;
+      --muted: #787878;
+      --line: #e8e8e8;
+      --accent: #111111;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="countdown-card" aria-label="Countdown timer">
+    <h1 class="title" id="eventTitle">MASTER'S ENTRANCE EXAM</h1>
+
+    <div class="rule"></div>
+
+    <section class="timer" id="timer">
+      <div class="unit">
+        <span class="number" id="days">000</span>
+        <span class="label">DAYS</span>
+      </div>
+
+      <div class="colon">:</div>
+
+      <div class="unit">
+        <span class="number" id="hours">00</span>
+        <span class="label">HRS</span>
+      </div>
+
+      <div class="colon">:</div>
+
+      <div class="unit">
+        <span class="number" id="minutes">00</span>
+        <span class="label">MIN</span>
+      </div>
+
+      <div class="colon">:</div>
+
+      <div class="unit">
+        <span class="number" id="seconds">00</span>
+        <span class="label">SEC</span>
+      </div>
+    </section>
+
+    <div class="rule"></div>
+
+    <div class="date" id="eventDate">30 AUG 2026 · 08:30</div>
+    <div class="timezone">ASIA/BANGKOK · UTC+7</div>
+  </main>
+
+  <script>
+    /*
+      ======================================================
+      EDIT THESE SETTINGS
+      ======================================================
+    */
+
+    const EVENT_TITLE = "MASTER'S ENTRANCE EXAM";
+
+    // Thailand time is UTC+07:00.
+    // ISO 8601 with explicit offset avoids browser timezone ambiguity.
+    const TARGET_DATE = "2026-10-05T08:30:00+07:00";
+
+    const DISPLAY_DATE = "05 OCT 2026 · 08:30";
+
+    // What to show after the countdown reaches zero.
+    const FINISHED_TEXT = "EXAM DAY";
+
+    /*
+      ======================================================
+      COUNTDOWN ENGINE
+      ======================================================
+    */
+
+    const target = new Date(TARGET_DATE).getTime();
+
+    const titleEl = document.getElementById("eventTitle");
+    const dateEl = document.getElementById("eventDate");
+    const timerEl = document.getElementById("timer");
+
+    const daysEl = document.getElementById("days");
+    const hoursEl = document.getElementById("hours");
+    const minutesEl = document.getElementById("minutes");
+    const secondsEl = document.getElementById("seconds");
+
+    titleEl.textContent = EVENT_TITLE;
+    dateEl.textContent = DISPLAY_DATE;
+
+    function pad(value, length = 2) {
+      return String(value).padStart(length, "0");
+    }
+
+    function updateCountdown() {
+      const now = Date.now();
+      let diff = target - now;
+
+      if (diff <= 0) {
+        timerEl.innerHTML = `<div class="finished" style="grid-column:1/-1">${FINISHED_TEXT}</div>`;
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      daysEl.textContent = pad(days, 3);
+      hoursEl.textContent = pad(hours);
+      minutesEl.textContent = pad(minutes);
+      secondsEl.textContent = pad(seconds);
+    }
+
+    updateCountdown();
+
+    // Align updates closely to the change of each second.
+    setInterval(updateCountdown, 250);
+  </script>
+</body>
+</html>
